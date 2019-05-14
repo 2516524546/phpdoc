@@ -58,7 +58,7 @@ $act = isset($_REQUEST['act']) ? trim($_REQUEST['act']) : 'agent';
 		  $beizhu   =  $arr["beizhu"];
 		  $query_time  = $arr["query_time"];
 		  $hits        = $arr['hits'];
-		   $hmd        = $arr['hmd'];
+		  $hmd        = $arr['hmd'];
 		  $results     = 1;
 		  $msg1        = str_replace("{{weixin}}",$weixin,unstrreplace($cf['agent_1']));
 
@@ -136,42 +136,43 @@ ob_clean();
 //
 //  $blue=ImageColorAllocate($myImage, 0, 0, 255);
 //
-//  imagettftext($myImage, 16, 0, 100, 400, $black, "simhei.ttf",  "$msg1");
+//  imagettftext($myImage, 15, 0, 100, 400, $black, "simhei.ttf",  "$msg1");
 //  imagecopymerge($dst, $myImage, 10, 10, 0, 0, 10, 10, 0);
 //  header("Content-type:image/png");
 //
 // ImagePng($myImage);
 // ImageDestroy($myImage);
 
-$dst_path = 'zs002.png';
+$dst_path = 'zs009.png';
 
 $src_path = '.'.$header;
 //创建图片的实例
+$image = imagecreatetruecolor(500, 500);
+$black=ImageColorAllocate($image,0,0,0);
 $dst = imagecreatefromstring(file_get_contents($dst_path));
 
 
 $src = imagecreatefromstring(file_get_contents($src_path));
 list($src_w, $src_h) = getimagesize($src_path);
 $per= 0.3;
-$n_w=170;
-$n_h=220;
+$n_w=146;
+$n_h=180;
 //缩放图片
-$new = imagecreate($n_w, $n_h);
+$new = imagecreatetruecolor($n_w, $n_h);
+
 imagecopyresized($new, $src,0, 0,0, 0,$n_w, $n_h, $src_w, $src_h);
 // header('Content-Type: image/png');
 // imagepng($new);
-
-
 //
 //获取水印图片的宽高
 
 //如果水印图片本身带透明色，则使用imagecopy方法
-$black=ImageColorAllocate($dst, 0, 0, 0);
+
 //生成水印图片
 if ($header) {
-  imagecopy($dst, $new, 420, 466, 0, 0, $n_w, $n_h);
+  imagecopy($dst, $new, 482, 465, 0, 0, $n_w, $n_h);
 }else {
-  imagecopy($dst, $new, 420, 466, 0, 0, $n_w, $n_h,0);
+  imagecopy($dst, $new, 482, 465, 0, 0, $n_w, $n_h,0);
 }
 //获取水印图片的宽高
 list($dst_w, $dst_h, $dst_type) = getimagesize($dst_path);
@@ -181,9 +182,27 @@ list($dst_w, $dst_h, $dst_type) = getimagesize($dst_path);
  // $green=ImageColorAllocate($dst, 0, 255, 0);
  // $blue=ImageColorAllocate($dst, 0, 0, 255);
 
-
 //文字水印
-imagettftext($dst, 16, 0, 100, 400, $black, "simhei.ttf",  "$msg1");
+// echo "<pre>";
+// print_r($msg1);die;
+$alltime = $addtime.' 至 '.$jietime;
+$company = "德瑞康互联生物医学科技股份有限公司 旗下微商代理";
+
+$a = 1;
+
+while ($a <= 1) {
+  imagettftext($dst, 18, 0, 150, 370, $black, "simhei.ttf",  $name);
+  imagettftext($dst, 15, 0, 120, 410, $black, "simhei.ttf",  $company);
+  imagettftext($dst, 15, 0, 180, 460, $black, "simhei.ttf",  $shuyu);
+  imagettftext($dst, 16, 0, 180, 505, $black, "simhei.ttf",  $weixin);
+  imagettftext($dst, 15, 0, 180, 545, $black, "simhei.ttf",  $dizhi);
+  imagettftext($dst, 16, 0, 180, 590, $black, "simhei.ttf",  $idcard);
+  imagettftext($dst, 22, 0, 240, 653, $black, "simhei.ttf",  $agentid);
+  imagettftext($dst, 14, 0, 170, 697, $black, "simhei.ttf",  $alltime);
+  imagettftext($dst, 14, 0, 369, 873, $black, "simhei.ttf",  $addtime);
+  $a++;
+}
+
 
 switch ($dst_type) {
     case 1://GIF
