@@ -144,6 +144,7 @@ ob_clean();
 // ImageDestroy($myImage);
 
 $dst_path = 'zs002.png';
+
 $src_path = '.'.$header;
 //创建图片的实例
 $dst = imagecreatefromstring(file_get_contents($dst_path));
@@ -154,6 +155,7 @@ list($src_w, $src_h) = getimagesize($src_path);
 $per= 0.3;
 $n_w=170;
 $n_h=220;
+//缩放图片
 $new = imagecreate($n_w, $n_h);
 imagecopyresized($new, $src,0, 0,0, 0,$n_w, $n_h, $src_w, $src_h);
 // header('Content-Type: image/png');
@@ -162,13 +164,16 @@ imagecopyresized($new, $src,0, 0,0, 0,$n_w, $n_h, $src_w, $src_h);
 
 //
 //获取水印图片的宽高
-// list($src_w, $src_h) = getimagesize($src_path);
-//将水印图片复制到目标图片上，最后个参数80是设置透明度，这里实现半透明效果
-// imagecopymerge($dst, $src, 10, 10, 0, 0, $src_w, $src_h,50);
+
 //如果水印图片本身带透明色，则使用imagecopy方法
 $black=ImageColorAllocate($dst, 0, 0, 0);
-imagecopy($dst, $new, 420, 466, 0, 0, $n_w, $n_h);
-//输出图片
+//生成水印图片
+if ($header) {
+  imagecopy($dst, $new, 420, 466, 0, 0, $n_w, $n_h);
+}else {
+  imagecopy($dst, $new, 420, 466, 0, 0, $n_w, $n_h,0);
+}
+//获取水印图片的宽高
 list($dst_w, $dst_h, $dst_type) = getimagesize($dst_path);
 
  // $white=ImageColorAllocate($dst, 255, 255, 255);
@@ -177,7 +182,7 @@ list($dst_w, $dst_h, $dst_type) = getimagesize($dst_path);
  // $blue=ImageColorAllocate($dst, 0, 0, 255);
 
 
-
+//文字水印
 imagettftext($dst, 16, 0, 100, 400, $black, "simhei.ttf",  "$msg1");
 
 switch ($dst_type) {
