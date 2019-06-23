@@ -23,12 +23,14 @@ $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
 $traverser     = new NodeTraverser();
 $prettyPrinter = new PrettyPrinter\Standard;
 
+// echo "<style>body{ background-color:#0C0C0C; color:green} font{  color: green;} </style>";
 
 
 
 try {
   $ast = $parser->parse($code);
   $ast = $traverser->traverse($ast);
+  // halt($ast);
   $test_me =  $prettyPrinter->prettyPrint($ast);
   // var_dump($test_me);die;
   // $dumper = new NodeDumper;
@@ -53,6 +55,12 @@ try {
          if (get_class($ast[$key+1]) != 'PhpParser\Node\Stmt\Goto_') {
               $newdata[$value->name->name] =   $ast[$key+1] ;
               $ast[$key+1]->name->nextgoto  =  &$ast[$key+2]->name->name;
+         }if (get_class($ast[$key-1]) == 'PhpParser\Node\Stmt\Label' && get_class($ast[$key+1]) == 'PhpParser\Node\Stmt\Goto_') {
+            $newdata[$value->name->name] =   $ast[$key+1] ;
+            $ast[$key+1]->name->nextgoto  =  &$ast[$key+1]->name->name;
+         }if (get_class($ast[$key-1]) != 'PhpParser\Node\Stmt\Label' && get_class($ast[$key+1]) == 'PhpParser\Node\Stmt\Goto_') {
+            $newdata[$value->name->name] =   $ast[$key+1] ;
+            $ast[$key+1]->name->nextgoto  =  &$ast[$key+1]->name->name;
          }
 
 
@@ -63,7 +71,7 @@ try {
 
   $firset_data = [];
   $nextgoto_old = '';
-
+// halt($newdata);
   // MYGOD:
 
   // foreach ($newdata as $key => $value) {
@@ -84,7 +92,8 @@ try {
           $nextgoto_old =  $value->name->nextgoto;
       }
   }
-
+  $newdata = $this->chekif($newdata);
+  // halt($newdata);
   $res =  $this->checkdata($firset_data,$newdata,$nextgoto_old);
 
   // foreach ( as $key => $value) {
@@ -120,7 +129,14 @@ try {
                           if (get_class($value2->stmts[$key99+1]) != 'PhpParser\Node\Stmt\Goto_') {
                                $newdata_new[$value99->name->name] =   $value2->stmts[$key99+1] ;
                                $value2->stmts[$key99+1]->name->nextgoto  =  &$value2->stmts[$key99+2]->name->name;
+                           }if (get_class($value2->stmts[$key99-1]) == 'PhpParser\Node\Stmt\Label' && get_class($value2->stmts[$key99+1]) == 'PhpParser\Node\Stmt\Goto_') {
+                             $newdata_new[$value99->name->name] =   $value2->stmts[$key99+1] ;
+                             $value2->stmts[$key99+1]->name->nextgoto  =  &$value2->stmts[$key99+1]->name->name;
+                           }if (get_class($value2->stmts[$key99-1]) != 'PhpParser\Node\Stmt\Label' && get_class($value2->stmts[$key99+1]) == 'PhpParser\Node\Stmt\Goto_') {
+                             $newdata_new[$value99->name->name] =         $value2->stmts[$key99+1] ;
+                             $value2->stmts[$key99+1]->name->nextgoto  =  &$value2->stmts[$key99+1]->name->name;
                            }
+
                         }else {
                                $newdata_new[$value99->name->name] = $value2->stmts[$key99];
                                // $value2->stmts[$key99]->name->nextgoto = null;
@@ -144,17 +160,19 @@ try {
                     }
                 }
                 // $test_code =  $prettyPrinter->prettyPrint($newdata_new);
-                // var_dump($test_code);
+                // halt($newdata_new);
+                $newdata_new = $this->chekif($newdata_new);
+                // var_dump($newdata_new);
+                $res =  $this->checkdata($firset_data,$newdata_new,$nextgoto_old);
+                // var_dump($prettyPrinter->prettyPrint($res));
                 // die;
-              $res =  $this->checkdata($firset_data,$newdata_new,$nextgoto_old);
-              // var_dump($prettyPrinter->prettyPrint($res));
-              // die;
-              $ast[$key]->stmts[$key2]->stmts  =   $res;
+                $ast[$key]->stmts[$key2]->stmts  =   $res;
 
             }
 
 
             }
+
         }
       }
   }
@@ -162,11 +180,11 @@ try {
   // var_dump($ast);die;
   $test_code =  $prettyPrinter->prettyPrint($ast);
   $code = "<?php"."\n".$test_code;
+  // echo "<style>body{ background-color:#0C0C0C; }</style>";
   var_dump($code);die;
 
 
 
-   die;
 
   // var_dump($code);die;
   // echo "<pre>";
@@ -204,6 +222,51 @@ echo $dumper->dump($ast);
          }
        return  $firset_data;
     }
+
+
+ public function chekif($newdata){
+   foreach ($newdata as $key => $value) {
+    if (get_class($value) == 'PhpParser\Node\Stmt\If_') {
+      if (!empty($value ->stmts[0]->name->name)) {
+           foreach ($newdata as $key996 => $value996) {
+             if ($key996  == $value->stmts[0]->name->name) {
+               // if (empty($this->checkdata_if($newdata,$key996))) {
+               //   var_dump($newdata);
+               //   var_dump($key996);
+               //   halt($this->checkdata_if($newdata,$key996));
+               // }
+                   $newdata[$key]->stmts[0] = $this->checkdata_if($newdata,$key996);
+                   break;
+               }
+           }
+           // return ($value ->stmts[0]->name->name);
+       }
+     }
+
+   }
+          return $newdata;
+ }
+
+
+ public  function checkdata_if($newdata,$nextgoto_new){
+
+   foreach ($newdata as $key2 => $value2) {
+     if ($nextgoto_new == $key2) {
+        // var_dump($nextgoto_new);
+       if (get_class($value2) == 'PhpParser\Node\Stmt\Goto_') {
+           if (!empty($value2->name->nextgoto)){
+                  $nextgoto_new =  $value2->name->nextgoto;
+                  return  $this->checkdata_if($newdata,$nextgoto_new);
+               }
+            }else {
+                 return $value2;
+            }
+        }
+      }
+
+   }
+
+
 
 
 }
