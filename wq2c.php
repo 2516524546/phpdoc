@@ -38,11 +38,9 @@ try {
   // halt($ast);
   $test_me =  $prettyPrinter->prettyPrint($ast);
 
-
   // halt($code2);
   // $test_me =  $prettyPrinter->prettyPrint($test_me);
   // var_dump($test_me);die;
-
   // $dumper = new NodeDumper;
   //
   // echo "<pre>";
@@ -256,6 +254,15 @@ $dumper = new NodeDumper;
                           // halt($res);
                           $ast[$key]->stmts = $res;
 
+                      }else {
+                          if (!empty($ast[$key]->stmts)) {
+                              foreach ($ast[$key]->stmts as $key9527 => $value9527) {
+                                // halt($ast[$key]->stmts);
+                                 if (get_class($ast[$key]->stmts[$key9527]) ==  'PhpParser\Node\Stmt\Label') {
+                                      unset($ast[$key]->stmts[$key9527]);
+                                 }
+                              }
+                          }
                       }
 
 
@@ -294,10 +301,7 @@ $dumper = new NodeDumper;
                                          }
 
                                       }
-                                      // else {
-                                      //        $newdata_new[$value99->name->name] = $value2->stmts[$key99];
-                                      //        // $value2->stmts[$key99]->name->nextgoto = null;
-                                      // }
+
                                   }
 
                               }
@@ -351,7 +355,7 @@ $dumper = new NodeDumper;
                          // var_dump($value99);die;
                          // $newdata[$value->name->name] = $ast[$key+1];
 
-                          if (!empty($value2->stmts[$key99+1] && !empty($value2->stmts[$key99+2]))) {
+                          if (!empty($value2->stmts[$key99+1])) {
                             if (get_class($value2->stmts[$key99+1]) != 'PhpParser\Node\Stmt\Goto_') {
                                  $newdata_new[$value99->name->name] =   $value2->stmts[$key99+1] ;
                                  $value2->stmts[$key99+1]->name->nextgoto  =  &$value2->stmts[$key99+2]->name->name;
